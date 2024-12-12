@@ -14,7 +14,7 @@ class HashTable: public Dict<V> {
     private:
         int n;
 	int max;
-	ListLinked<TableEntry<V>>* table;
+	ListLinked<TableEntry<V>>** table;
 	int h(std::string key){
 		int hash=0;
 		for(int i=0;i<key.length();i++){
@@ -27,11 +27,11 @@ class HashTable: public Dict<V> {
 	HashTable(int size){
 		this->n = 0;
 		this->max = size;
-		this->table = new ListLinked<TableEntry<V>>[size];
+		this->table = new ListLinked<TableEntry<V>>*[size];
 	}
 
 	~HashTable(){
-		delete this->Table;
+		delete this->table;
 	}
 
 	int capacity(){
@@ -39,10 +39,10 @@ class HashTable: public Dict<V> {
 	}
 
 	friend std::ostream& operator<<(std::ostream &out, const HashTable<V> &th){
-		for(int i=0;i<max;i++){
-			if(this->table[i]!=NULL){
-				for(int j=0;j<this->table[i]->size();j++){
-					out<<this->table[i]->get(j);
+		for(int i=0;i<th.max;i++){
+			if(th.table[i]!=NULL){
+				for(int j=0;j<th.table[i]->size();j++){
+					out<<th.table[i]->get(j);
 				}
 			}
 		}
@@ -57,6 +57,12 @@ class HashTable: public Dict<V> {
 		int pos=this->h(key);
 		if(this->table[pos]==NULL){
 			this->table[pos]=new ListLinked<TableEntry<V>>();
+		}
+		for(int i=0;i<this->table[pos]->size();i++){
+			TableEntry<V> entrada=this->table[pos]->get(i);
+			if(entrada.key==key){
+				throw std::runtime_error("Ya existe la clave en el diccionario");
+			}
 		}
 		TableEntry<V> entrada(key, value);
 		this->table[pos]->append(entrada);
@@ -86,7 +92,7 @@ class HashTable: public Dict<V> {
 			TableEntry<V> entrada=this->table[pos]->get(i);
 			if(entrada.key==key){
 				this->n--;
-				return this->table[pos]->remove(i);
+				return this->table[pos]->remove(i).value;
 			}
 		}
 		throw std::runtime_error("Se encontró la lista pero no la entrada");

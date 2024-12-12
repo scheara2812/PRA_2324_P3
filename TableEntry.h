@@ -6,11 +6,10 @@
 
 template <typename V> 
 class TableEntry {
-	
-    private:
+
+    public:
 	std::string key;
 	V value;
-    public:
 	TableEntry(std::string key, V value){
 		this->key=key;
 		this->value=value;
