@@ -38,7 +38,40 @@ private:
         return n;
     }
 
-    void print_inorder(std::ostream& out, BSNode<T>* n) const {
+    BSNode<T>* removeNode(BSNode<T>* n, T e) {
+        if (n == nullptr) {
+            throw std::runtime_error("Elemento no encontrado");
+        }
+
+        if (e < n->elem) {
+            n->left = removeNode(n->left, e);
+        } else if (e > n->elem) {
+            n->right = removeNode(n->right, e);
+        } else {
+            if (n->left == nullptr) {
+                BSNode<T>* temp = n->right;
+                delete n;
+                return temp;
+            } else if (n->right == nullptr) {
+                BSNode<T>* temp = n->left;
+                delete n;
+                return temp;
+            }
+
+            BSNode<T>* successor = n->right;
+            while (successor->left != nullptr) {
+                successor = successor->left;
+            }
+
+            n->elem = successor->elem;
+
+            n->right = removeNode(n->right, successor->elem);
+        }
+
+        return n;
+    }
+
+    void print_inorder(std::ostream& out, BSNode<T>* n) {
         if (n != nullptr) {
             print_inorder(out, n->left);
             out << n->elem << " ";
@@ -46,13 +79,6 @@ private:
         }
     }
 
-    void delete_cascade(BSNode<T>* n) {
-        if (n != nullptr) {
-            delete_cascade(n->left);
-            delete_cascade(n->right);
-            delete n;
-        }
-    }
 
 public:
     BSTree() {
@@ -60,17 +86,20 @@ public:
         nelem = 0;
 	    }
 
-    ~BSTree() {
-        delete_cascade(root);
-    }
 
     int size() const {
         return nelem;
     }
 
-    T search(T e) const {
+    T search(T e) {
         BSNode<T>* result = search(root, e);
         return result->elem;
+    }
+
+    T remove(T e) {
+        T result = this->search(e);
+        removeNode(this->root, e);
+        return result;
     }
 
     T operator[](T e) const {
@@ -82,7 +111,7 @@ public:
         nelem++;
     }
 
-    friend std::ostream& operator<<(std::ostream& out, const BSTree<T>& bst) {
+    friend std::ostream& operator<<(std::ostream& out, BSTree<T>& bst) {
         bst.print_inorder(out, bst.root);
         return out;
     }

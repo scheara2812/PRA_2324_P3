@@ -22,6 +22,7 @@ class HashTable: public Dict<V> {
 		}
 		return hash % this->max;
 	}
+	
 
     public:
 	HashTable(int size){
